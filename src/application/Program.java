@@ -6,29 +6,24 @@ import java.util.Date;
 import java.util.Scanner;
 
 import model.entities.Reservation;
+import model.exceptions.DomainExcpetion;
 
-//2ª solução: Ruim. Lógica dentro da classe Reservation
-//É um tipo de solução usada em linguagens mais antigas, como a C
-//A classe responsável pela lógica retorna um código que o programador deve recuperar
+//3ª solução: com tratamento de exceções
 public class Program {
 
-	public static void main(String[] args) throws ParseException {
+	public static void main(String[] args) {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		Scanner sc = new Scanner(System.in);
 
-		System.out.print("Room number: ");
-		int roomNumber = sc.nextInt();
-		System.out.print("Chekin date (dd/MM/yyyy): ");
-		Date checkin = sdf.parse(sc.next());
-		System.out.print("Chekout date (dd/MM/yyyy): ");
-		Date checkout = sdf.parse(sc.next());
+		try {
+			System.out.print("Room number: ");
+			int roomNumber = sc.nextInt();
+			System.out.print("Chekin date (dd/MM/yyyy): ");
+			Date checkin = sdf.parse(sc.next());
+			System.out.print("Chekout date (dd/MM/yyyy): ");
+			Date checkout = sdf.parse(sc.next());
 
-		//validação para criar um objeto ainda deve ser feita aqui, pois deveria estar no construtor 
-		//e não existe meio de fazer o construtor retornar uma string
-		if (!checkout.after(checkin)) {
-			System.out.println("Error in reservation: Checkout date must be after chekin");
-		} else {
 			Reservation reservation = new Reservation(roomNumber, checkin, checkout);
 			System.out.println("Reservation: " + reservation);
 
@@ -39,15 +34,15 @@ public class Program {
 			System.out.print("Chekout date (dd/MM/yyyy): ");
 			checkout = sdf.parse(sc.next());
 
-			String error = reservation.updatDates(checkin, checkout);
-
-			if (error != null) {
-				System.out.println("Error in reservation: " + error);
-			} else {
-				System.out.println("Reservation: " + reservation);
-			}
-		}
-
+			reservation.updatDates(checkin, checkout);
+			System.out.println("Reservation: " + reservation);
+		} catch (ParseException parseException) {
+			System.err.println("Invalid date format.");
+		}catch(DomainExcpetion domainException) {//catch (IllegalArgumentException illegalArgumentException) {
+			System.err.println("Error in reservation: " + domainException.getMessage());//illegalArgumentException.getMessage());
+		}catch(RuntimeException runtimeException) {
+			System.err.println("Unexpected error");
+		}//protege o programa de exceções que não eram esperadas
 		sc.close();
 	}
 
